@@ -1,14 +1,22 @@
-FROM python:3.8
+FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY ./app/ /app
+# Install only the necessary dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev
 
-# Add these lines before installing dependencies
-RUN python -m pip install --upgrade pip setuptools wheel
+# Copy requirements first (better caching)
+COPY requirements.txt .
 
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel
 RUN pip install -r requirements.txt
 
-CMD ["python", "main.py"]
+# Copy application code
+COPY ./app/ .
+COPY ./ai_log_analysis/ /ai_log_analysis/
 
-RUN python -m spacy download en_core_web_sm
+# Run the application
+CMD ["python", "main.py"]

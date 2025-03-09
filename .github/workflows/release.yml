@@ -3,7 +3,7 @@ name: CI/CD Pipeline with AI Log Analysis and Auto-Rollback
 on:
   push:
     branches:
-      - main  # Runs when code is pushed to main
+      - main
 
 jobs:
   build-deploy:
@@ -13,34 +13,49 @@ jobs:
       - name: 📂 Checkout Code
         uses: actions/checkout@v3
 
+      - name: 🛠️ Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'  # Use Python 3.10 instead of 3.12
+
       - name: 🛠️ Set up Docker
         uses: docker/setup-buildx-action@v2
 
-      - name: 📦 Install Dependencies  # ✅ Fix: Install Python dependencies
+      - name: 📦 Install Python dependencies
         run: |
-          pip install -r app/requirements.txt
-          python -m spacy download en_core_web_sm
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
 
       - name: 🏗️ Build Docker Image
         run: |
           docker build -t my-app -f docker/Dockerfile .
           echo "✅ Build successful"
 
+      - name: 🚀 Start the application
+        run: |
+          docker-compose -f docker/docker-compose.yml up -d
+          # Wait for the application to start
+          sleep 10
+
       - name: ✅ Run Tests
-        run: echo "✅ Running tests (Mock Step)"  # Replace with real test command
+        run: |
+          pip install pytest requests
+          echo "✅ Running tests (Mock Step)"
 
       - name: 🔍 Run AI Log Analysis
-        run: python ai_log_analysis/analyze_logs.py
-
-      - name: 🚀 Deploy to Production (Simulated)
-        run: echo "🚀 Deploying app to production"
-
-      - name: 🔄 Check Deployment Status & Rollback if Failed
         run: |
-          if [[ $(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000) -ne 200 ]]; then
-            echo "❌ Deployment failed! Rolling back..."
-            chmod +x rollback/rollback.sh
+          # Create a sample log file if it doesn't exist
+          [ -f ai_log_analysis/deployment_logs.txt ] || echo "INFO: Application started\nWARNING: High memory usage\nERROR: Failed to connect to database" > ai_log_analysis/deployment_logs.txt
+          python ai_log_analysis/analyze_logs.py
+
+      - name: 🔄 Check Deployment Status
+        run: |
+          # Use curl to check the service
+          RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000 || echo "000")
+          if [ "$RESPONSE_CODE" != "200" ]; then
+            echo "❌ Deployment failed with status code $RESPONSE_CODE! Rolling back..."
             bash rollback/rollback.sh
+            exit 1
           else
             echo "✅ Deployment successful!"
           fi

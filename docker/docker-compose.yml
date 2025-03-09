@@ -6,3 +6,5 @@ services:
       dockerfile: docker/Dockerfile
     ports:
       - "5000:5000"
+    volumes:
+      - ../ai_log_analysis:/app/ai_log_analysis
