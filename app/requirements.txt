@@ -1,2 +1,3 @@
 Flask
-spacy
+spacy==3.5.1  # Use a stable version
+numpy<1.25.0  # Ensure compatibility with spacy
