@@ -16,6 +16,11 @@ jobs:
       - name: 🛠️ Set up Docker
         uses: docker/setup-buildx-action@v2
 
+      - name: 📦 Install Dependencies  # ✅ Fix: Install Python dependencies
+        run: |
+          pip install -r app/requirements.txt
+          python -m spacy download en_core_web_sm
+
       - name: 🏗️ Build Docker Image
         run: |
           docker build -t my-app -f docker/Dockerfile .
