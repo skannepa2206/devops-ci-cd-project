@@ -4,10 +4,10 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "🚀 DevOps Automation in Action YaaaY!"
+    return "🚀 DevOps Automation in Action YaY!"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 
 
-#Test4
+#Test5
