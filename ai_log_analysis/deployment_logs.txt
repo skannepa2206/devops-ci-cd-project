@@ -1,0 +1,4 @@
+INFO: Deployment started
+ERROR: Connection timeout in API
+WARNING: High memory usage detected
+INFO: Deployment completed
