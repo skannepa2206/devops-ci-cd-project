@@ -34,12 +34,34 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t my-app -f docker/Dockerfile .
+          # Save current image as previous if it exists
+          if docker image inspect my-app:latest >/dev/null 2>&1; then
+            docker tag my-app:latest my-app:previous
+          fi
+          # Build new image
+          docker build -t my-app:latest -f docker/Dockerfile .
+          echo "✅ Build successful"
 
       - name: Start the application
         run: |
           docker-compose -f docker/docker-compose.yml up -d
-          sleep 10
+          echo "✅ Container started"
+
+      - name: Debug container
+        run: |
+          echo "Docker container logs:"
+          docker logs docker-web-1 || echo "Cannot access logs"
+          echo "Running containers:"
+          docker ps -a
+          echo "Network status:"
+          docker network ls
+          echo "Container IP and ports:"
+          docker inspect docker-web-1 | grep IPAddress || echo "Cannot inspect container"
+
+      - name: Wait for application to start
+        run: |
+          echo "Waiting for application to start..."
+          sleep 15
 
       - name: Run Tests
         run: |
@@ -53,11 +75,13 @@ jobs:
           while retry_count < max_retries:
               try:
                   response = requests.get('http://localhost:5000')
+                  print(f'Response status: {response.status_code}')
+                  print(f'Response body: {response.text}')
                   if response.status_code == 200:
                       print('✅ Application is running successfully!')
                       exit(0)
-              except requests.exceptions.ConnectionError:
-                  pass
+              except requests.exceptions.ConnectionError as e:
+                  print(f'Connection error: {e}')
               
               retry_count += 1
               print(f'Retry {retry_count}/{max_retries}...')
@@ -74,9 +98,10 @@ jobs:
       - name: Check Deployment Status
         run: |
           RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000 || echo "000")
+          echo "Response code: $RESPONSE_CODE"
           if [ "$RESPONSE_CODE" != "200" ]; then
             echo "❌ Deployment failed with status code $RESPONSE_CODE! Rolling back..."
-            bash rollback/rollback.sh || echo "Rollback failed but continuing"
+            bash rollback/rollback.sh
             exit 1
           else
             echo "✅ Deployment successful!"
