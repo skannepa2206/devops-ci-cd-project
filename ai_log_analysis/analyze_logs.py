@@ -1,4 +1,3 @@
-# ai_log_analysis/analyze_logs.py
 import re
 import os
 
@@ -6,12 +5,11 @@ import os
 def analyze_logs(log_file):
     """Reads logs and summarizes issues using regex patterns."""
     try:
-        # Use error handling for encoding issues
+        # Handle different encodings
         try:
             with open(log_file, "r", encoding="utf-8") as file:
                 logs = file.read()
         except UnicodeDecodeError:
-            # Try with a different encoding if UTF-8 fails
             with open(log_file, "r", encoding="latin-1") as file:
                 logs = file.read()
 
@@ -19,7 +17,7 @@ def analyze_logs(log_file):
         error_lines = re.findall(r"ERROR: (.+)", logs)
         warning_lines = re.findall(r"WARNING: (.+)", logs)
 
-        # Simple summary
+        # Create summary
         error_summary = ". ".join(error_lines[:3]) if error_lines else "No errors found"
         warning_summary = ". ".join(warning_lines[:3]) if warning_lines else "No warnings found"
 
@@ -35,7 +33,7 @@ if __name__ == "__main__":
 
     # Create a sample log file if it doesn't exist
     if not os.path.exists(log_file):
-        with open(log_file, "w") as f:
+        with open(log_file, "w", encoding="utf-8") as f:
             f.write("INFO: Application started\nWARNING: High memory usage\nERROR: Failed to connect to database\n")
 
     # Run analysis
