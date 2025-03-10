@@ -1,40 +1,42 @@
+# ai_log_analysis/analyze_logs.py
 import re
 import os
 
 
 def analyze_logs(log_file):
-    """Reads logs and summarizes issues using regex patterns instead of NLP."""
+    """Reads logs and summarizes issues using regex patterns."""
     try:
-        with open(log_file, "r") as file:
-            logs = file.read()
+        # Use error handling for encoding issues
+        try:
+            with open(log_file, "r", encoding="utf-8") as file:
+                logs = file.read()
+        except UnicodeDecodeError:
+            # Try with a different encoding if UTF-8 fails
+            with open(log_file, "r", encoding="latin-1") as file:
+                logs = file.read()
 
         # Extract Errors & Warnings
         error_lines = re.findall(r"ERROR: (.+)", logs)
         warning_lines = re.findall(r"WARNING: (.+)", logs)
 
-        # Simple summary without using spaCy
-        error_summary = ". ".join(error_lines[:3])  # First 3 errors
-        warning_summary = ". ".join(warning_lines[:3])  # First 3 warnings
+        # Simple summary
+        error_summary = ". ".join(error_lines[:3]) if error_lines else "No errors found"
+        warning_summary = ". ".join(warning_lines[:3]) if warning_lines else "No warnings found"
 
-        summary = f"Found issues: {error_summary}. {warning_summary}"
-        if len(error_summary) + len(warning_summary) == 0:
-            summary = "No significant issues found."
-
-        return f"Deployment Log Summary:\nErrors: {len(error_lines)}\nWarnings: {len(warning_lines)}\nSummary: {summary}"
+        return f"Deployment Log Summary:\nErrors: {len(error_lines)}\nWarnings: {len(warning_lines)}\nSummary: {error_summary}. {warning_summary}"
 
     except Exception as e:
         return f"❌ Error analyzing logs: {str(e)}"
 
 
 if __name__ == "__main__":
-    # Get the directory of this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     log_file = os.path.join(script_dir, "deployment_logs.txt")
 
-    # Ensure the log file exists
+    # Create a sample log file if it doesn't exist
     if not os.path.exists(log_file):
         with open(log_file, "w") as f:
             f.write("INFO: Application started\nWARNING: High memory usage\nERROR: Failed to connect to database\n")
 
-    # Run log analysis
+    # Run analysis
     print(analyze_logs(log_file))

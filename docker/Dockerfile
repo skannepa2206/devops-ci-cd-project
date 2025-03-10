@@ -1,25 +1,28 @@
-FROM python:3.8
+FROM python:3.8-slim
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    python3-dev
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (better caching)
+# Copy requirements first (for better caching)
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY ./app/ .
-COPY ./ai_log_analysis/ /ai_log_analysis/
+# Copy only the necessary files
+COPY app/ .
 
-# Expose port 5000
+# Explicitly set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_APP=main.py
+
+# Expose the port
 EXPOSE 5000
 
-# Run the application
+# Command to run the application
 CMD ["python", "main.py"]
