@@ -6,9 +6,6 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
-    gcc \
-    g++ \
-    python3-dev \
     curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -20,7 +17,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application code - make sure paths are correct
 COPY app/ .
 
 # Explicitly set environment variables
