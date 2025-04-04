@@ -100,9 +100,9 @@ This project uses GitHub Actions for CI/CD. The workflow includes:
 
 The AI log analysis component (`ai_log_analysis/analyze_logs.py`) scans deployment logs to detect issues. It uses regex pattern matching to:
 
-- Extract error and warning messages
-- Generate summaries of detected issues
-- Provide actionable insights for troubleshooting
+- Extract error and warning messages.
+- Generate summaries of detected issues.
+- Provide actionable insights for troubleshooting.
 
 ## 🔄 Auto-Rollback Mechanism
 
