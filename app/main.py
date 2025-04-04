@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "🚀 DevOps Automation in Action YaaY!"
+    return "🚀 DevOps Automation in Action YaaY- Update1!"
 
 if __name__ == "__main__":
     # Explicitly bind to all interfaces (0.0.0.0) and port 5000
