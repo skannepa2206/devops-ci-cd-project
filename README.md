@@ -96,7 +96,7 @@ This project uses GitHub Actions for CI/CD. The workflow includes:
 4. **Monitor**: Analyze logs for potential issues
 5. **Rollback**: Automatically roll back to the previous version if issues are detected
 
-## 🧠 AI Log Analysis
+## 🧠 AI Log Analysis:
 
 The AI log analysis component (`ai_log_analysis/analyze_logs.py`) scans deployment logs to detect issues. It uses regex pattern matching to:
 
